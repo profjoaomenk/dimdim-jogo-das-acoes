@@ -48,6 +48,7 @@ Um mini jogo educacional de mercado de ações desenvolvido com Java 17 Spring B
 ### 1. Clone o repositório
 
 git clone https://github.com/SEU-USUARIO/dimdim-stock-game.git
+
 cd dimdim-stock-game
 
 
