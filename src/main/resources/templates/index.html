@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DimDim Stock Game - Jogue com Ações!</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="/images/logo-dimdim.jpg" alt="DimDim Logo" class="logo">
+            </div>
+            <h1>DimDim Stock Game</h1>
+            <p class="subtitle">Invista nas melhores empresas e teste sua sorte no mercado!</p>
+        </header>
+
+        <!-- Wallet Section -->
+        <section class="wallet-section">
+            <div class="wallet-card">
+                <div class="wallet-header">
+                    <h3>💼 Sua Carteira</h3>
+                    <form th:action="@{/reset}" method="post" style="display: inline;">
+                        <button type="submit" class="reset-btn" title="Reiniciar Carteira">🔄</button>
+                    </form>
+                </div>
+                <div class="wallet-content">
+                    <div class="wallet-main">
+                        <span class="wallet-label">Ações Disponíveis:</span>
+                        <span class="wallet-value" th:text="${wallet.totalShares}">100</span>
+                    </div>
+                    <div class="wallet-stats">
+                        <div class="wallet-stat">
+                            <span class="stat-icon">🎮</span>
+                            <span class="stat-number" th:text="${wallet.gamesPlayed}">0</span>
+                            <span class="stat-text">Jogadas</span>
+                        </div>
+                        <div class="wallet-stat success">
+                            <span class="stat-icon">✅</span>
+                            <span class="stat-number" th:text="${wallet.gamesWon}">0</span>
+                            <span class="stat-text">Vitórias</span>
+                        </div>
+                        <div class="wallet-stat danger">
+                            <span class="stat-icon">❌</span>
+                            <span class="stat-number" th:text="${wallet.gamesLost}">0</span>
+                            <span class="stat-text">Derrotas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result Message -->
+        <div th:if="${result}" class="result-container" th:classappend="${result.marketMovement == 'HIGH'} ? 'result-success' : (${result.marketMovement == 'LOW'} ? 'result-danger' : 'result-neutral')">
+            <h2>Resultado da Jogada</h2>
+            <div class="result-details">
+                <p class="result-message" th:text="${result.message}"></p>
+                <div class="result-stats">
+                    <div class="stat">
+                        <span class="stat-label">Ações Apostadas:</span>
+                        <span class="stat-value" th:text="${result.initialQuantity}"></span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Variação:</span>
+                        <span class="stat-value" th:text="${result.marketMovement == 'HIGH' ? '+' : (result.marketMovement == 'LOW' ? '-' : '')} + ${result.changeAmount}"></span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Total na Carteira:</span>
+                        <span class="stat-value" th:text="${result.finalQuantity}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${error}" class="error-container">
+            <p th:text="${error}"></p>
+        </div>
+
+        <!-- Game Over Message -->
+        <div th:if="${wallet.totalShares == 0}" class="gameover-container">
+            <h2>💔 Game Over!</h2>
+            <p>Você perdeu todas as suas ações!</p>
+            <form th:action="@{/reset}" method="post">
+                <button type="submit" class="restart-btn">🔄 Recomeçar Jogo</button>
+            </form>
+        </div>
+
+        <!-- Companies Section -->
+        <section class="companies-section" th:if="${wallet.totalShares > 0}">
+            <h2>Escolha uma Empresa</h2>
+            <div class="companies-grid">
+                <div th:each="company : ${companies}" class="company-card">
+                    <div class="company-icon" th:text="${company.icon}"></div>
+                    <h3 th:text="${company.name}"></h3>
+                    <p class="company-description" th:text="${company.description}"></p>
+                    <p class="company-price">Preço Base: R$ <span th:text="${#numbers.formatDecimal(company.basePrice, 1, 2)}"></span></p>
+                    <button class="select-btn" 
+                            th:attr="data-company-id=${company.id}, data-company-name=${company.name}">
+                        Selecionar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trading Form -->
+        <section class="trading-section" th:if="${wallet.totalShares > 0}">
+            <h2>Faça sua Jogada</h2>
+            <form th:action="@{/play}" method="post" class="trading-form">
+                <div class="form-group">
+                    <label for="companyIdDisplay">Empresa Selecionada:</label>
+                    <input type="text" id="companyIdDisplay" readonly placeholder="Selecione uma empresa acima">
+                    <input type="hidden" id="companyId" name="companyId" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Quantidade de Ações (1-<span th:text="${wallet.totalShares > 100 ? 100 : wallet.totalShares}"></span>):</label>
+                    <input type="number" id="quantity" name="quantity" min="1" 
+                           th:attr="max=${wallet.totalShares > 100 ? 100 : wallet.totalShares}" 
+                           value="10" required>
+                    <div class="range-container">
+                        <input type="range" id="quantityRange" min="1" 
+                               th:attr="max=${wallet.totalShares > 100 ? 100 : wallet.totalShares}" 
+                               value="10" class="slider">
+                        <span class="range-value">10</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="play-btn">🎲 Jogar Agora!</button>
+            </form>
+        </section>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <h3>Como Jogar</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">💰</div>
+                    <h4>Comece com 100 Ações</h4>
+                    <p>Use suas ações para investir!</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📈</div>
+                    <h4>Alta do Mercado</h4>
+                    <p>Ganhe metade das suas ações!</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📉</div>
+                    <h4>Baixa do Mercado</h4>
+                    <p>Perca metade das suas ações!</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📊</div>
+                    <h4>Mercado Estável</h4>
+                    <p>Suas ações permanecem iguais!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 DimDim - Banco Privado. Todos os direitos reservados.</p>
+            <p class="disclaimer">Este é um jogo educacional. Investimentos reais envolvem riscos.</p>
+        </footer>
+    </div>
+
+    <script th:src="@{/js/script.js}"></script>
+</body>
+</html>

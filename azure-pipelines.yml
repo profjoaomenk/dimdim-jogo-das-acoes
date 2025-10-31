@@ -1,0 +1,104 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  azureSubscription: 'SEU_SERVICE_CONNECTION'
+  webAppName: 'dimdim-stock-game-RM9999'
+  resourceGroup: 'rg-dimdim-stock-game'
+  location: 'brazilsouth'
+  dockerRegistryServiceConnection: 'SEU_DOCKER_REGISTRY_CONNECTION'
+  imageRepository: 'dimdim-stock-game'
+  containerRegistry: 'SEU_ACR_NAME.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+stages:
+  # Build e Test
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildJob
+        displayName: 'Maven Build'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          # Build com testes
+          - task: Maven@4
+            displayName: 'Maven Package with Tests'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean package'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.17'
+              mavenVersionOption: 'Default'
+          
+          # Publicar JAR
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish JAR'
+            inputs:
+              PathtoPublish: 'target'
+              ArtifactName: 'dimdim'
+
+  # Docker Build e Push
+  - stage: Docker
+    displayName: 'Docker Build and Push'
+    dependsOn: Build
+    jobs:
+      - job: DockerJob
+        displayName: 'Docker'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: Docker@2
+            displayName: 'Build and Push'
+            inputs:
+              command: 'buildAndPush'
+              repository: '$(imageRepository)'
+              dockerfile: '$(dockerfilePath)'
+              containerRegistry: '$(dockerRegistryServiceConnection)'
+              tags: |
+                $(tag)
+                latest
+
+  # Deploy
+  - stage: Deploy
+    displayName: 'Deploy to Azure'
+    dependsOn: Docker
+    jobs:
+      - deployment: DeployJob
+        displayName: 'Deploy'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'Create Resources'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Resource Group
+                      az group create --name $(resourceGroup) --location $(location)
+                      
+                      # App Service Plan
+                      az appservice plan create \
+                        --name plan-$(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --is-linux \
+                        --sku F1
+                
+                - task: AzureWebAppContainer@1
+                  displayName: 'Deploy Container'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appName: '$(webAppName)'
+                    resourceGroupName: '$(resourceGroup)'
+                    containers: '$(containerRegistry)/$(imageRepository):$(tag)'
