@@ -4,7 +4,7 @@ Um mini jogo educacional de mercado de ações desenvolvido com Java 17 Spring B
 
 ![DimDim Logo](src/main/resources/static/images/logo-dimdim.jpg)
 
-[![Java](https://img.shields.io/badge/Java-21-orange?logo=java)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-17-orange?logo=java)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen?logo=spring)](https://spring.io/projects/spring-boot)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue?logo=apache-maven)](https://maven.apache.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
