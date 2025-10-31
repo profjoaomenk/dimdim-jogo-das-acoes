@@ -112,41 +112,6 @@ O projeto inclui um arquivo `azure-pipelines.yml` para CI/CD automatizado no Azu
 - `webAppName`: Nome único do Web App
 - `containerRegistry`: URL do ACR (ex: dimdimacr.azurecr.io)
 
-## 📁 Estrutura do Projeto
-
-dimdim-stock-game/
-├── src/
-│ ├── main/
-│ │ ├── java/
-│ │ │ └── com/dimdim/stockgame/
-│ │ │ ├── StockGameApplication.java
-│ │ │ ├── controller/
-│ │ │ │ ├── StockGameController.java
-│ │ │ │ └── StockGameRestController.java
-│ │ │ ├── service/
-│ │ │ │ └── StockGameService.java
-│ │ │ └── model/
-│ │ │ ├── Company.java
-│ │ │ ├── StockTransaction.java
-│ │ │ ├── GameResult.java
-│ │ │ └── PlayerWallet.java
-│ │ └── resources/
-│ │ ├── application.properties
-│ │ ├── static/
-│ │ │ ├── css/style.css
-│ │ │ ├── js/script.js
-│ │ │ └── images/logo-dimdim.jpg
-│ │ └── templates/
-│ │ └── index.html
-│ └── test/
-├── target/
-├── Dockerfile
-├── azure-pipelines.yml
-├── pom.xml
-├── .gitignore
-└── README.md
-
-
 ## 🎨 Cores do Projeto
 
 - **Amarelo Principal**: #FFD700
@@ -173,26 +138,28 @@ dimdim-stock-game/
 
 [
 {
-"id": "acme",
-"name": "Empresas ACME",
-"icon": "🏭",
-"basePrice": 100.0,
-"description": "Produtos inovadores desde 1949"
+  "id": "acme",
+  "name": "Empresas ACME",
+  "icon": "🏭",
+  "basePrice": 100.0,
+  "description": "Produtos inovadores desde 1949"
 }
 ]
 
 
 **GET** `/api/wallet` - Retorna dados da carteira
 
+
 {
-"totalShares": 100,
-"gamesPlayed": 0,
-"gamesWon": 0,
-"gamesLost": 0
+  "totalShares": 100,
+  "gamesPlayed": 0,
+  "gamesWon": 0,
+  "gamesLost": 0
 }
 
 
 **POST** `/api/play` - Realizar uma jogada
+
 
 {
 "companyId": "acme",
@@ -202,11 +169,14 @@ dimdim-stock-game/
 
 **POST** `/api/reset` - Resetar a carteira
 
+
 ## 📝 Licença
 
-Este é um projeto educacional desenvolvido para fins de aprendizado.
+Este é um projeto educacional desenvolvido para fins de aprendizado
 
 ## 👨‍💻 Autor
+
+João Menk
 
 Desenvolvido para demonstrar conceitos de:
 - Desenvolvimento web com Spring Boot
@@ -218,5 +188,3 @@ Desenvolvido para demonstrar conceitos de:
 ---
 
 ⭐ **DimDim** - Prof João Menk | Este é um jogo educacional. Investimentos reais envolvem riscos
-
-
